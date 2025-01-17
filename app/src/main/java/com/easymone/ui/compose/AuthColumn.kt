@@ -23,17 +23,13 @@ import com.easymone.ui.theme.gray1
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
 import com.easymone.ui.util.NoRippleInteractionSource
+import kotlinx.serialization.json.JsonNull.content
 
 @Composable
 fun AuthColumn(
     title: String,
     subtitle: String,
-    emailValue: String,
-    onEmailChange: (String) -> Unit,
-    emailError: String? = null,
-    passwordValue: String,
-    onPasswordChange: (String) -> Unit,
-    passwordError: String? = null,
+    content: @Composable () -> Unit,
     subtitleOnClick: () -> Unit,
     buttonOnClick: () -> Unit
 ) {
@@ -61,28 +57,7 @@ fun AuthColumn(
                 indication = null
             )
         )
-        AuthTextField(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            textValue = emailValue,
-            onTextChange = onEmailChange,
-            placeholder = "Email"
-        )
-        if (emailError != null) {
-            Text(
-                text = emailError
-            )
-        }
-        AuthTextField(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            textValue = passwordValue,
-            onTextChange = onPasswordChange,
-            placeholder = "Password"
-        )
-        if (passwordError != null) {
-            Text(
-                text = passwordError
-            )
-        }
+        content()
         TealButtonSample(
             onClick = buttonOnClick,
             modifier = Modifier.padding(horizontal = 16.dp)

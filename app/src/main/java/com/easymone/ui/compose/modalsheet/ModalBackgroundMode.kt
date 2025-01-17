@@ -1,4 +1,4 @@
-package com.easymone.ui.compose
+package com.easymone.ui.compose.modalsheet
 
 import android.content.Intent
 import android.net.Uri
@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import com.easymone.R
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.blueText
@@ -85,9 +84,10 @@ fun BottomSheetBackgroundMode(
                     .border(width = 1.dp, color = teal, shape = RoundedCornerShape(16.dp))
                     .clickable(
                         onClick = {
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                            intent.setData(Uri.parse("package:" + context.packageName))
+                            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                            intent.data = Uri.parse("package:${context.packageName}")
                             context.startActivity(intent)
+                            onDismissRequest()
                         },
                         interactionSource = NoRippleInteractionSource,
                         indication = null

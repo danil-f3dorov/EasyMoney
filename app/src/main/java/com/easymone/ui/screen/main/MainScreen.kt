@@ -1,9 +1,11 @@
 package com.easymone.ui.screen.main
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.easymone.data.local.UserPreferences
 import com.easymone.ui.screen.home.HomeScreen
 import com.easymone.ui.screen.login.LoginScreen
 import com.easymone.ui.screen.signup.SignUpScreen
@@ -14,6 +16,7 @@ import kotlinx.serialization.Serializable
 fun MainScreen(
     navController: NavHostController
 ) {
+    val userPrefs = UserPreferences(LocalContext.current)
 
     val navHome = {
         navController.navigate(Screen.HomeScreen) {
@@ -30,7 +33,7 @@ fun MainScreen(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Start
+        startDestination = if (userPrefs.isUserLoggedIn()) Screen.HomeScreen else Screen.Start
     ) {
         composable<Screen.Start> {
             StartScreen(

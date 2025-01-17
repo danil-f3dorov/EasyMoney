@@ -7,6 +7,7 @@ import com.easymone.R
 object Roboto {
     val regular = FontFamily(Font(R.font.roboto_regular))
     val medium = FontFamily(Font(R.font.roboto_medium))
+    val light = FontFamily(Font(R.font.roboto_light))
 }
 object Urbanist {
     val regular = FontFamily(Font(R.font.urbanist_regular))

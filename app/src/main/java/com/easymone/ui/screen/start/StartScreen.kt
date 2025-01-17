@@ -1,8 +1,5 @@
 package com.easymone.ui.screen.start
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,11 +19,9 @@ import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest.Builder
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.PasswordCredential
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.easymone.R
-import com.easymone.data.remote.GoogleTokenWrapper
-import com.easymone.data.remote.authApi
+import com.easymone.data.remote.model.request.GoogleTokenRequest
 import com.easymone.ui.compose.AuthScreenSample
 import com.easymone.ui.compose.TealButtonSample
 import com.easymone.ui.theme.Roboto
@@ -43,10 +39,23 @@ import kotlinx.coroutines.withContext
 @Composable
 fun StartScreen(
     navHome: () -> Unit,
-    navSignUp: () -> Unit
+    navSignUp: () -> Unit,
+    startViewModel: StartViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+
+
+    LaunchedEffect(startViewModel.signInWithGoogleResult) {
+        startViewModel.signInWithGoogleResult.value
+            .onSuccess { resultCode ->
+                when (resultCode) {
+                    0L -> navHome()
+                }
+
+            }.onFailure {
+
+            }
+    }
 
     AuthScreenSample(
         popBackStack = null,
@@ -107,32 +116,7 @@ fun StartScreen(
             TealButtonSample(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 onClick = {
-
-                    val options = GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId("463914353947-8behfqvuf8fn4ik5190hubcb3us16h7c.apps.googleusercontent.com")
-                        .setAutoSelectEnabled(false)
-                        .build()
-
-                    val request =
-                        Builder().addCredentialOption(options).build()
-                    coroutineScope.launch(Dispatchers.Default) {
-                        val response = CredentialManager.create(context)
-                            .getCredential(context, request)
-
-                        if (response.credential is CustomCredential && response.credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                            val googleCredential =
-                                GoogleIdTokenCredential.createFrom(response.credential.data)
-                            authApi.sendGoogleToken(GoogleTokenWrapper(googleCredential.idToken))
-                            withContext(Dispatchers.Main) {
-                                navHome()
-                            }
-                            Log.d(
-                                "OAuth",
-                                "onCreate: Signed In as: ${googleCredential.id} ${googleCredential.idToken}"
-                            )
-                        }
-                    }
+                    startViewModel.signInWithGoogleAccount(context)
                 }
             ) {
                 Row(

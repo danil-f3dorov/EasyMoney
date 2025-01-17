@@ -1,5 +1,7 @@
 package com.easymone.ui.compose
 
+import android.content.Context
+import android.os.PowerManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -12,11 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.easymone.R
+import com.easymone.ui.compose.modalsheet.BottomSheetBackgroundMode
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.blueText
 import com.easymone.ui.theme.borderColor
@@ -37,21 +40,24 @@ import com.easymone.ui.theme.purple
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
 import com.easymone.ui.util.NoRippleInteractionSource
-import com.easymone.ui.util.isBackgroundRestricted
-
-
-@Composable
-@Preview(showBackground = true)
-fun TrafficSharedColumnPreview() {
-    TrafficSharedColumn()
-}
+import com.easymone.ui.util.byteToGigabyte
+import com.easymone.ui.util.isAppAllowedToRunInBackground
 
 
 @Composable
 fun TrafficSharedColumn(
+    traffic: String
 ) {
     val context = LocalContext.current
-    var switchChecked by remember { mutableStateOf(isBackgroundRestricted(context)) }
+    var isAllowedToRunInBackground by remember {
+        mutableStateOf(
+            isAppAllowedToRunInBackground(
+                context
+            )
+        )
+    }
+    var switchChecked by remember { mutableStateOf(isAllowedToRunInBackground) }
+    var showModal by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -69,7 +75,7 @@ fun TrafficSharedColumn(
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            text = "0.0000 GB",
+            text = "${byteToGigabyte(traffic)} GB",
             fontSize = 35.sp,
             fontFamily = Roboto.regular,
             color = textColor
@@ -126,7 +132,10 @@ fun TrafficSharedColumn(
                     modifier = Modifier.scale(0.7f),
                     checked = switchChecked,
                     onCheckedChange = {
-                        switchChecked = !switchChecked
+                        if (!isAllowedToRunInBackground) {
+                            showModal = true
+                            switchChecked = true
+                        }
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = purple,
@@ -149,9 +158,11 @@ fun TrafficSharedColumn(
 
         }
 
-        if (switchChecked) {
+        if (showModal) {
             BottomSheetBackgroundMode(
-                onDismissRequest = { switchChecked = false }
+                onDismissRequest = {
+                    showModal = false
+                }
             )
         }
 
