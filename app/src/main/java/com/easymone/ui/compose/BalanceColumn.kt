@@ -1,5 +1,7 @@
 package com.easymone.ui.compose
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,10 +16,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +33,8 @@ import androidx.compose.ui.unit.sp
 import com.easymone.R
 import com.easymone.data.remote.model.response.ClientStats
 import com.easymone.data.remote.model.response.DailyStats
+import com.easymone.ui.compose.modalsheet.ModalKeepEarning
+import com.easymone.ui.screen.home.HomeViewModel
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.blueText
 import com.easymone.ui.theme.borderColor
@@ -32,15 +42,29 @@ import com.easymone.ui.theme.divideColor
 import com.easymone.ui.theme.purple
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
-import com.easymone.ui.util.NoRippleInteractionSource
+import com.easymone.ui.util.compose.NoRippleInteractionSource
+import com.easymone.ui.util.compose.shimmerEffect
 import java.util.Locale
 
 @Composable
 fun BalanceColumn(
-    onClickRefreshStats: () -> Unit,
     clientStats: ClientStats,
-    clientDailyStats: List<DailyStats>
+    clientDailyStats: List<DailyStats>,
+    homeViewModel: HomeViewModel,
+    navNoInternet: () -> Unit
 ) {
+    val rotation by animateFloatAsState(
+        targetValue = if (!homeViewModel.isExpanded.value) 90f else 0f,
+        animationSpec = tween(150), label = ""
+    )
+    var keepEarning by remember { mutableStateOf(false) }
+
+    if(keepEarning) {
+        ModalKeepEarning {
+           keepEarning = !keepEarning
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,15 +91,16 @@ fun BalanceColumn(
                 modifier = Modifier.clickable(
                     indication = null,
                     interactionSource = NoRippleInteractionSource,
-                    onClick = onClickRefreshStats
+                    onClick = { homeViewModel.getStats(navNoInternet) }
                 )
             )
         }
         Text(
-            text = "$${String.format(Locale.ENGLISH, "%.3f" , clientStats.balance.toFloat())}",
+            text = "$${String.format(Locale.ENGLISH, "%.3f", clientStats.balance.toFloat())}",
             fontFamily = Roboto.regular,
             fontSize = 35.sp,
-            color = textColor
+            color = textColor,
+            modifier = Modifier.shimmerEffect(homeViewModel.loading.value)
         )
         Spacer(Modifier.height(8.dp))
 
@@ -98,18 +123,28 @@ fun BalanceColumn(
                 fontSize = 14.sp,
                 color = textColor
             )
-            Icon(
-                painter = painterResource(R.drawable.ic_arrow_down),
-                contentDescription = null,
-                tint = textColor
-            )
+            IconButton(
+                onClick = { homeViewModel.isExpanded.value = !homeViewModel.isExpanded.value },
+                interactionSource = NoRippleInteractionSource
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_right),
+                    contentDescription = null,
+                    tint = textColor,
+                    modifier = Modifier.rotate(rotation)
+                )
+            }
         }
-        clientDailyStats.forEach {
-            DailyStat(it)
+        if (homeViewModel.isExpanded.value) {
+            clientDailyStats.forEach {
+                DailyStat(it)
+            }
         }
         Spacer(Modifier.height(24.dp))
         TealButtonSample(
-            onClick = {}
+            onClick = {
+                keepEarning = true
+            }
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -134,7 +169,7 @@ fun BalanceColumn(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "The minimum payout amount is $10",
+                text = "The minimum payout amount is $15",
                 fontFamily = Roboto.regular,
                 fontSize = 10.sp,
                 color = blueText

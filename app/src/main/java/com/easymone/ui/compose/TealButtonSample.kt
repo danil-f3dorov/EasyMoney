@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.easymone.ui.theme.teal
-import com.easymone.ui.util.NoRippleInteractionSource
+import com.easymone.ui.util.compose.NoRippleInteractionSource
 
 @Composable
 @Preview(showBackground = true)

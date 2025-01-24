@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.easymone.data.local.UserPreferences
+import com.easymone.ui.screen.nointernet.NoInternetScreen
 import com.easymone.ui.screen.home.HomeScreen
 import com.easymone.ui.screen.login.LoginScreen
 import com.easymone.ui.screen.signup.SignUpScreen
@@ -23,12 +24,18 @@ fun MainScreen(
             popUpTo(Screen.Start) { inclusive = true }
         }
     }
-    val navSignUp = { navController.navigate(Screen.SignUpScreen){
-        launchSingleTop = true
-    } }
-    val navLogin = { navController.navigate(Screen.LoginScreen) {
-        launchSingleTop = true
-    } }
+    val navSignUp = {
+        navController.navigate(Screen.SignUpScreen) {
+            launchSingleTop = true
+        }
+    }
+
+    fun navLoginWithArgs(email: String = "", password: String = "") {
+        navController.navigate(Screen.LoginScreen(email, password))
+    }
+
+    val navNoInternet = { navController.navigate(Screen.NoInternetScreen) }
+
     val popBackStack = { navController.popBackStack() }
 
     NavHost(
@@ -38,26 +45,38 @@ fun MainScreen(
         composable<Screen.Start> {
             StartScreen(
                 navHome = navHome,
-                navSignUp = navSignUp
+                navSignUp = navSignUp,
+                navNoInternet = navNoInternet
             )
         }
         composable<Screen.SignUpScreen> {
             SignUpScreen(
-                navLogin = navLogin,
-                navHome = navHome,
-                popBackStack = popBackStack
+                navLogin = { navLoginWithArgs() },
+                navNoInternet = navNoInternet,
+                popBackStack = popBackStack,
+                navLoginWithArgs = { email, password ->
+                    navLoginWithArgs(email, password)
+                }
             )
-
         }
         composable<Screen.LoginScreen> {
             LoginScreen(
                 navSignUp = navSignUp,
                 navHome = navHome,
-                popBackStack = popBackStack
+                navNoInternet = navNoInternet,
+                popBackStack = popBackStack,
+                initEmail = it.arguments?.getString("email") ?: "",
+                initPassword = it.arguments?.getString("password") ?: ""
             )
         }
         composable<Screen.HomeScreen> {
-            HomeScreen()
+            HomeScreen(
+                navNoInternet = navNoInternet
+            )
+        }
+
+        composable<Screen.NoInternetScreen> {
+            NoInternetScreen(popBackStack)
         }
     }
 }
@@ -71,8 +90,11 @@ sealed class Screen {
     data object SignUpScreen : Screen()
 
     @Serializable
-    data object LoginScreen : Screen()
+    data class LoginScreen(val email: String, val password: String) : Screen()
 
     @Serializable
     data object HomeScreen : Screen()
+
+    @Serializable
+    data object NoInternetScreen : Screen()
 }

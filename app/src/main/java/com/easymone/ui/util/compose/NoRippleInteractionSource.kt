@@ -1,4 +1,4 @@
-package com.easymone.ui.util
+package com.easymone.ui.util.compose
 
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource

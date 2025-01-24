@@ -4,14 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +25,7 @@ import com.easymone.ui.theme.background
 import com.easymone.ui.theme.borderColor
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
-import com.easymone.ui.util.NoRippleInteractionSource
+import com.easymone.ui.util.compose.NoRippleInteractionSource
 
 @Composable
 fun AuthScreenSample(

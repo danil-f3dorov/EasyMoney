@@ -17,13 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.easymone.R
@@ -32,30 +36,27 @@ import com.easymone.ui.theme.blueText
 import com.easymone.ui.theme.teal
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
-import com.easymone.ui.util.NoRippleInteractionSource
+import com.easymone.ui.util.compose.NoRippleInteractionSource
+import com.easymone.ui.util.isAppAllowedToRunInBackground
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetBackgroundMode(
-    onDismissRequest: () -> Unit
+fun ModalBackgroundMode(
+    sheetState: SheetState
 ) {
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-
     val context = LocalContext.current
 
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        sheetState = sheetState,
+        onDismissRequest = {},
         containerColor = white,
+        sheetState = sheetState,
         tonalElevation = 20.dp
     ) {
         Column(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.5f),
+            Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -68,7 +69,9 @@ fun BottomSheetBackgroundMode(
                         "in the background?",
                 fontSize = 16.sp,
                 fontFamily = Roboto.medium,
-                color = textColor
+                color = textColor,
+                textAlign = TextAlign.Center,
+                lineHeight = 20.sp
             )
             Spacer(Modifier.height(8.dp))
             Text(
@@ -84,10 +87,10 @@ fun BottomSheetBackgroundMode(
                     .border(width = 1.dp, color = teal, shape = RoundedCornerShape(16.dp))
                     .clickable(
                         onClick = {
-                            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                            val intent =
+                                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
                             intent.data = Uri.parse("package:${context.packageName}")
                             context.startActivity(intent)
-                            onDismissRequest()
                         },
                         interactionSource = NoRippleInteractionSource,
                         indication = null
@@ -105,6 +108,5 @@ fun BottomSheetBackgroundMode(
                 )
             }
         }
-
     }
 }

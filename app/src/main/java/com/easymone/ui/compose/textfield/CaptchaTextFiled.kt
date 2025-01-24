@@ -1,28 +1,39 @@
-package com.easymone.ui.compose
+package com.easymone.ui.compose.textfield
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.easymone.ui.theme.Roboto
+import com.easymone.ui.theme.borderColor
 import com.easymone.ui.theme.gray1
 import com.easymone.ui.theme.lightGray1
+import com.easymone.ui.theme.red
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
-import com.easymone.ui.util.NoRippleInteractionSource
+import com.easymone.ui.util.compose.NoRippleInteractionSource
 
 @Composable
-fun AuthTextField(
+fun CaptchaTextField(
     modifier: Modifier = Modifier,
     textValue: String,
     onTextChange: (String) -> Unit,
-    placeholder: String
+    placeholder: String,
+    isError: Boolean,
+    errorText: String = ""
 ) {
+
+    val borderColor = remember(isError) { if (isError) red else lightGray1 }
+    val cursorColor = remember(isError) { if(isError) red else textColor}
+
     OutlinedTextField(
         value = textValue,
         onValueChange = onTextChange,
@@ -30,11 +41,15 @@ fun AuthTextField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = textColor,
             unfocusedTextColor = textColor,
-            focusedBorderColor = lightGray1,
-            unfocusedBorderColor = lightGray1,
+            errorTextColor = textColor,
+            focusedBorderColor = borderColor,
+            unfocusedBorderColor = borderColor,
+            errorBorderColor = borderColor,
             focusedContainerColor = white,
             unfocusedLabelColor = white,
-            cursorColor = textColor
+            errorContainerColor = white,
+            cursorColor = cursorColor,
+            errorCursorColor = cursorColor
         ),
         shape = RoundedCornerShape(16.dp),
         singleLine = true,
@@ -46,7 +61,17 @@ fun AuthTextField(
                 fontFamily = Roboto.regular,
                 color = gray1
             )
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        supportingText = {
+            if(isError) {
+                Text(
+                    text = errorText,
+                    fontFamily = Roboto.regular,
+                    fontSize = 14.sp,
+                    color = red
+                )
+            }
         }
-
     )
 }
