@@ -9,11 +9,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.Urbanist
 import com.easymone.ui.theme.blueText
+import com.easymone.ui.theme.purple
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.theme.white
 import com.easymone.ui.util.compose.NoRippleInteractionSource
@@ -22,6 +26,7 @@ import com.easymone.ui.util.compose.NoRippleInteractionSource
 fun AuthColumn(
     title: String,
     subtitle: String,
+    linkString: String,
     content: @Composable () -> Unit,
     subtitleOnClick: () -> Unit,
     buttonOnClick: () -> Unit
@@ -40,7 +45,14 @@ fun AuthColumn(
             color = textColor
         )
         Text(
-            text = subtitle,
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontFamily = Urbanist.regular, fontSize = 15.sp, color = blueText)) {
+                    append(subtitle)
+                }
+                withStyle(style = SpanStyle(fontFamily = Urbanist.semiBold, fontSize = 15.sp, color = purple)) {
+                    append(linkString)
+                }
+            },
             fontFamily = Urbanist.regular,
             fontSize = 15.sp,
             color = blueText,

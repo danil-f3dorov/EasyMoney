@@ -88,7 +88,8 @@ fun LoginScreen(
     ) {
         AuthColumn(
             title = "Login",
-            subtitle = "Don’t have an account? Sing up",
+            subtitle = "Don’t have an account? ",
+            linkString = "Sign up",
             subtitleOnClick = navSignUp,
             buttonOnClick = {
                 if(emailValue == "") {

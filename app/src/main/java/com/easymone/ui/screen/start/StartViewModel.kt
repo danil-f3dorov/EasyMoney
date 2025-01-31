@@ -35,16 +35,18 @@ class StartViewModel @Inject constructor(
     fun signInWithGoogleAccount(context: Context) {
         viewModelScope.launch {
             try {
+                isPlaying.value = true
                 isError.value = false
                 if(!isInternetAvailable()) throw UnknownHostException("no internet")
                 val options = GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
                     .setServerClientId("463914353947-8behfqvuf8fn4ik5190hubcb3us16h7c.apps.googleusercontent.com")
-                    .setAutoSelectEnabled(false)
+                    .setAutoSelectEnabled(true)
                     .build()
 
                 val request =
                     Builder().addCredentialOption(options).build()
+                isPlaying.value = false
                 val credential = CredentialManager.create(context)
                     .getCredential(context, request)
 

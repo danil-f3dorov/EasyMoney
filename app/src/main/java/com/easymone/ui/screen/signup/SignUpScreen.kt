@@ -120,8 +120,9 @@ fun SignUpScreen(
         popBackStack = popBackStack
     ) {
         AuthColumn(
-            title = if (!isCaptchaMode) "Sign in" else "Confirm Sign in",
-            subtitle = "Already have an account? Log in",
+            title = if (!isCaptchaMode) "Sign up" else "Confirm Sign up",
+            subtitle = "Already have an account? ",
+            linkString = "Log in",
             subtitleOnClick = navLogin,
             buttonOnClick = {
                 if (isCaptchaMode) signUpViewModel.confirmSignUp(

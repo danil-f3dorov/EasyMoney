@@ -11,4 +11,5 @@ object Roboto {
 }
 object Urbanist {
     val regular = FontFamily(Font(R.font.urbanist_regular))
+    val semiBold = FontFamily(Font(R.font.urbanist_semibold))
 }

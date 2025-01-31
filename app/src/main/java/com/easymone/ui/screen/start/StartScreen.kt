@@ -1,6 +1,7 @@
 package com.easymone.ui.screen.start
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -118,13 +119,12 @@ fun StartScreen(
                 }
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.mail_line),
+                    Image(
+                        painter = painterResource(R.drawable.ic_mail),
                         contentDescription = "sign in with mail",
-                        tint = white
                     )
                     Text(
                         text = "Continue with Email",
@@ -148,13 +148,12 @@ fun StartScreen(
                 }
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.google_line),
-                        contentDescription = "sign in with google   ",
-                        tint = white
+                    Image(
+                        painter = painterResource(R.drawable.ic_google),
+                        contentDescription = "sign in with google   "
                     )
                     Text(
                         text = "With Google Account",
