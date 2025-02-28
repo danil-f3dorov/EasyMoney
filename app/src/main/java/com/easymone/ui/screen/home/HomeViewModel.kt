@@ -14,6 +14,9 @@ import com.easymone.ui.util.getStartDay
 import com.easymone.ui.util.getToday
 import com.easymone.ui.util.isEmulator
 import com.easymone.ui.util.isVpn
+import com.progun.dunta_sdk.android.core.DuntaService
+import com.progun.dunta_sdk.api.DuntaManager
+import com.progun.dunta_sdk.api.DuntaManagerImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +41,10 @@ class HomeViewModel @Inject constructor(
     private val _clientStats = MutableStateFlow(ClientStats("0.000", "0.0000"))
     val clientStats get() = _clientStats
     var isExpanded = mutableStateOf(false)
-    private var _earnStatus = MutableStateFlow<EarnStatus>(EarnStatus.Default)
+    private var _earnStatus = MutableStateFlow(
+        if (DuntaService.serviceIsRunning) EarnStatus.Connected
+        else EarnStatus.Default
+    )
     val earnStatus get() = _earnStatus
 
     fun startEarn() {
@@ -50,21 +56,26 @@ class HomeViewModel @Inject constructor(
             _earnStatus.value = EarnStatus.VpnEnabled
             return
         }
+
         App.duntaManager.setNotificationTitle(App.instance, "Earning in process")
-        App.duntaManager.setNotificationContent(
-            App.instance,
-            "You earn ${
-                String.format(
-                    Locale.ENGLISH,
-                    "%.3f",
-                    clientStats.value.balance.toFloat()
-                )
-            }$"
-        )
+        updateNotificationContent(clientStats.value.balance)
+
         App.duntaManager.setPartnerId(1)
-        App.duntaManager.setApplicationId(3)
+        App.duntaManager.setApplicationId(100)
         App.duntaManager.start(App.instance)
+
+        viewModelScope.launch {
+            clientStats.collect { stats ->
+                updateNotificationContent(stats.balance)
+            }
+        }
+
         _earnStatus.value = EarnStatus.Connected
+    }
+
+    private fun updateNotificationContent(balance: String) {
+        val formattedBalance = String.format(Locale.ENGLISH, "%.3f", balance.toFloat())
+        App.duntaManager.setNotificationContent(App.instance, "You earn $formattedBalance$")
     }
 
     fun stopEarn() {

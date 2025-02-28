@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +25,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.easymone.ui.compose.BalanceColumn
 import com.easymone.ui.compose.TrafficSharedColumn
+import com.easymone.ui.compose.modalsheet.CenteredModalDialog
 import com.easymone.ui.compose.modalsheet.ModalWarning
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.textColor
+import com.easymone.ui.util.isAppAllowedToRunInBackground
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -101,7 +107,8 @@ fun HomeScreen(
         Spacer(Modifier.height(18.dp))
         TrafficSharedColumn(
             traffic = clientStats.value.traffic,
-            homeViewModel = homeViewModel
+            homeViewModel = homeViewModel,
+            earnStatus = earnStatus.value
         )
         Spacer(Modifier.height(8.dp))
         BalanceColumn(

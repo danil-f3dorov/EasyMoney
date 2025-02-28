@@ -77,8 +77,8 @@ fun SignUpScreen(
     }
 
     LaunchedEffect(signUpResult.value) {
-        signUpResult.value
-            .onSuccess { resultCode ->
+        signUpResult.value.fold(
+            onSuccess = { resultCode ->
                 when (resultCode) {
                     0 -> isCaptchaMode = true
                     2 -> {
@@ -86,10 +86,11 @@ fun SignUpScreen(
                         emailErrorText = "duplicate email"
                     }
                 }
-            }
-            .onFailure {
+            },
+            onFailure = {
                 navNoInternet()
             }
+        )
         signUpViewModel.resetSignUpResult()
     }
 
@@ -173,7 +174,9 @@ fun SignUpScreen(
                     )
                 } else {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
@@ -190,12 +193,13 @@ fun SignUpScreen(
                             painterResource(R.drawable.refresh_line),
                             contentDescription = "refresh captcha",
                             tint = purple,
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier
+                                .size(40.dp)
                                 .clickable(
-                                indication = null,
-                                interactionSource = NoRippleInteractionSource,
-                                onClick = { signUpViewModel.refreshCaptcha(emailValue) }
-                            )
+                                    indication = null,
+                                    interactionSource = NoRippleInteractionSource,
+                                    onClick = { signUpViewModel.refreshCaptcha(emailValue) }
+                                )
                         )
                     }
                     CaptchaTextField(

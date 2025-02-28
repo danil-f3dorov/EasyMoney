@@ -8,6 +8,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest.Builder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.easymone.data.local.UserPreferences
 import com.easymone.data.remote.api.AuthApi
 import com.easymone.data.remote.model.request.GoogleTokenRequest
 import com.easymone.ui.util.isInternetAvailable
@@ -23,7 +24,8 @@ import kotlin.text.Typography.dagger
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
-    private val authApi: AuthApi
+    private val authApi: AuthApi,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
 
     private val _signInWithGoogleResult = MutableStateFlow(Result.success(-1L))
@@ -31,22 +33,22 @@ class StartViewModel @Inject constructor(
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying get() = _isPlaying
     val isError = mutableStateOf(false)
+    val errorText = mutableStateOf("")
 
     fun signInWithGoogleAccount(context: Context) {
-        viewModelScope.launch {
+        isPlaying.value = true
+        viewModelScope.launch(Dispatchers.Default) {
             try {
-                isPlaying.value = true
                 isError.value = false
                 if(!isInternetAvailable()) throw UnknownHostException("no internet")
                 val options = GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
                     .setServerClientId("463914353947-8behfqvuf8fn4ik5190hubcb3us16h7c.apps.googleusercontent.com")
-                    .setAutoSelectEnabled(true)
+                    .setAutoSelectEnabled(false)
                     .build()
 
                 val request =
                     Builder().addCredentialOption(options).build()
-                isPlaying.value = false
                 val credential = CredentialManager.create(context)
                     .getCredential(context, request)
 
@@ -58,14 +60,20 @@ class StartViewModel @Inject constructor(
                         authApi.signUpGoogleAuth(GoogleTokenRequest(googleCredential.idToken))
                             .body()
                     val responseCode = response?.result ?: -1
+                    if(responseCode == 0L) {
+                        userPreferences.saveUserData(googleCredential.id, response?.token ?: "")
+                    }
 
                     _signInWithGoogleResult.value = Result.success(responseCode)
                 }
             } catch (uhe: UnknownHostException) {
+                errorText.value = "Get duplicate email"
                 _signInWithGoogleResult.value = Result.failure(uhe)
             } catch (e: Exception) {
-
-            } finally {
+                errorText.value = "Google Auth is unavailable"
+                _signInWithGoogleResult.value = Result.failure(e)
+            }
+            finally {
                 _isPlaying.value = false
             }
         }

@@ -48,10 +48,10 @@ fun LoginScreen(
 
 
     LaunchedEffect(loginResult.value) {
-        loginResult.value
-            .onSuccess { resultCode ->
+        loginResult.value.fold(
+            onSuccess = { resultCode ->
                 when (resultCode) {
-                    -1 -> {}
+                    -1 -> { }
                     0 -> navHome()
                     4 -> {
                         when(error.value) {
@@ -75,14 +75,14 @@ fun LoginScreen(
                     else -> {
                         Toast.makeText(context, "result: $resultCode", Toast.LENGTH_LONG).show()
                     }
-
                 }
-            }.onFailure {
+            },
+            onFailure = {
                 navNoInternet()
             }
+        )
         loginViewModel.resetLoginResult()
     }
-
     AuthScreenSample(
         popBackStack = popBackStack
     ) {

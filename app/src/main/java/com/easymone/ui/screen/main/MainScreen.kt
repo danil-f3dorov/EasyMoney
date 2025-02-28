@@ -1,7 +1,12 @@
 package com.easymone.ui.screen.main
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.util.fastCbrt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,12 +16,14 @@ import com.easymone.ui.screen.home.HomeScreen
 import com.easymone.ui.screen.login.LoginScreen
 import com.easymone.ui.screen.signup.SignUpScreen
 import com.easymone.ui.screen.start.StartScreen
+import com.easymone.ui.util.isInternetAvailable
 import kotlinx.serialization.Serializable
 
 @Composable
 fun MainScreen(
     navController: NavHostController
 ) {
+    var navFlag by remember { mutableStateOf(false) }
     val userPrefs = UserPreferences(LocalContext.current)
 
     val navHome = {
@@ -40,7 +47,12 @@ fun MainScreen(
 
     NavHost(
         navController = navController,
-        startDestination = if (userPrefs.isUserLoggedIn()) Screen.HomeScreen else Screen.Start
+        startDestination =
+        if (!isInternetAvailable()) {
+            navFlag = true
+            Screen.NoInternetScreen
+        } else if (userPrefs.isUserLoggedIn()) Screen.HomeScreen
+        else Screen.Start
     ) {
         composable<Screen.Start> {
             StartScreen(
@@ -76,11 +88,22 @@ fun MainScreen(
         }
 
         composable<Screen.NoInternetScreen> {
-            NoInternetScreen(popBackStack)
+            NoInternetScreen {
+                if (navFlag) {
+                    navController.navigate(
+                        if (userPrefs.isUserLoggedIn()) Screen.HomeScreen
+                        else Screen.Start
+                    ) {
+                        popUpTo(Screen.NoInternetScreen) { inclusive = true }
+                    }
+                    navFlag = false
+                } else {
+                    popBackStack()
+                }
+            }
         }
     }
 }
-
 
 sealed class Screen {
     @Serializable

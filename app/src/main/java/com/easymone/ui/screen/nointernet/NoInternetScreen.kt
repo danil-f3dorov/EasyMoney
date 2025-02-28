@@ -4,13 +4,15 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,30 +28,27 @@ import com.easymone.ui.compose.AuthScreenSample
 import com.easymone.ui.compose.TealButtonSample
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.Urbanist
-import com.easymone.ui.theme.blueText
 import com.easymone.ui.theme.purple
 import com.easymone.ui.theme.textColor
 import com.easymone.ui.util.isInternetAvailable
 
 @Composable
-fun NoInternetScreen(popBackStack: () -> Boolean) {
+fun NoInternetScreen(navigate: () -> Unit) {
 
-    BackHandler {
-        if (isInternetAvailable()) {
-            popBackStack()
+    var hasNav by remember { mutableStateOf(false) }
+
+    fun navigateWrapper() {
+        if (isInternetAvailable() && !hasNav) {
+            hasNav = true
+            navigate()
         }
     }
 
-    fun popBackStackWrapper(): Boolean {
-        if (isInternetAvailable())
-            popBackStack()
-
-        return isInternetAvailable()
+    BackHandler {
+        navigateWrapper()
     }
 
-    AuthScreenSample(
-        popBackStack = { popBackStackWrapper() }
-    ) {
+    AuthScreenSample {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,7 +75,7 @@ fun NoInternetScreen(popBackStack: () -> Boolean) {
 
             TealButtonSample(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                onClick = { popBackStackWrapper() }
+                onClick = { navigateWrapper() }
             ) {
                 Text(
                     text = "Refresh",

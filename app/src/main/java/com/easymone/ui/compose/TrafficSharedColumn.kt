@@ -1,9 +1,5 @@
 package com.easymone.ui.compose
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,10 +16,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,16 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.easymone.R
+import com.easymone.ui.compose.modalsheet.CenteredModalDialog
 import com.easymone.ui.screen.home.EarnStatus
 import com.easymone.ui.screen.home.HomeViewModel
 import com.easymone.ui.theme.Roboto
@@ -59,6 +49,7 @@ import com.easymone.ui.util.byteToGigabyte
 import com.easymone.ui.util.compose.dashBorder
 import com.easymone.ui.util.isAppAllowedToRunInBackground
 import com.easymone.ui.util.compose.shimmerEffect
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -66,32 +57,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun TrafficSharedColumn(
     traffic: String,
-    homeViewModel: HomeViewModel
-) {
+    homeViewModel: HomeViewModel,
+    earnStatus: EarnStatus
+){
+    var startEarn by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
     var switchChecked by remember { mutableStateOf(isAppAllowedToRunInBackground(context)) }
-    val earnStatus = homeViewModel.earnStatus.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
 
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val coroutine = rememberCoroutineScope()
-
-    LaunchedEffect(lifecycle) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                    coroutine.launch {
-                        delay(1000)
-                        val isAllowed = isAppAllowedToRunInBackground(context)
-                        switchChecked = isAllowed
-                    }
-                }
-                Lifecycle.Event.ON_STOP -> {
-                }
-                else -> {}
-            }
-        }
-        lifecycle.addObserver(observer)
-    }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -123,7 +98,7 @@ fun TrafficSharedColumn(
         )
         Spacer(Modifier.height(24.dp))
 
-        if (earnStatus.value == EarnStatus.Connected) {
+        if (earnStatus == EarnStatus.Connected) {
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -149,10 +124,15 @@ fun TrafficSharedColumn(
         }
         TealButtonSample(
             onClick = {
-                if (earnStatus.value == EarnStatus.Connected) {
+                if (earnStatus == EarnStatus.Connected) {
                     homeViewModel.stopEarn()
                 } else {
-                    homeViewModel.startEarn()
+                    if (!isAppAllowedToRunInBackground(context)) {
+                        showDialog = true
+                        startEarn = true
+                    } else {
+                        homeViewModel.startEarn()
+                    }
                 }
             }
         ) {
@@ -162,7 +142,7 @@ fun TrafficSharedColumn(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = if (earnStatus.value == EarnStatus.Connected) {
+                    painter = if (earnStatus == EarnStatus.Connected) {
                         painterResource(R.drawable.ic_off_wifi)
                     } else {
                         painterResource(R.drawable.wifi_line)
@@ -173,8 +153,8 @@ fun TrafficSharedColumn(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text =
-                    if (earnStatus.value == EarnStatus.Connected) "Stop Sharing"
-                    else "StartSharing",
+                    if (earnStatus == EarnStatus.Connected) "Stop Sharing"
+                    else "Start Sharing",
                     fontSize = 15.sp,
                     fontFamily = Roboto.regular,
                     color = white
@@ -205,12 +185,9 @@ fun TrafficSharedColumn(
                     checked = switchChecked,
                     onCheckedChange = {
                         if (it) {
-                            val intent =
-                                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                            intent.data = Uri.parse("package:${context.packageName}")
-                            context.startActivity(intent)
+                            showDialog = true
                         } else {
-                            if(isAppAllowedToRunInBackground(context)) {
+                            if (isAppAllowedToRunInBackground(context)) {
                                 switchChecked = true
                             }
                         }
@@ -234,4 +211,32 @@ fun TrafficSharedColumn(
             }
         }
     }
+
+    CenteredModalDialog(
+        showDialog,
+        onClick = {
+            coroutineScope.launch(Dispatchers.Default) {
+                val startTime = System.currentTimeMillis()
+                while (System.currentTimeMillis() - startTime < 10_000) {
+                    val isAllowed = isAppAllowedToRunInBackground(context)
+                    switchChecked = isAllowed
+                    if (isAllowed) {
+                        if(startEarn) {
+                            homeViewModel.startEarn()
+                            startEarn = false 
+                        }
+                        showDialog = false
+                        break
+                    }
+                    delay(100)
+                }
+            }
+        },
+        onDismissRequest = {
+            if (isAppAllowedToRunInBackground(context)) {
+                switchChecked = true
+            }
+            showDialog = false
+        })
 }
+

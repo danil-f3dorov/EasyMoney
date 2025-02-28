@@ -62,8 +62,8 @@ fun StartScreen(
     val isPlaying = startViewModel.isPlaying.collectAsState()
 
     LaunchedEffect(signInResult.value) {
-        signInResult.value
-            .onSuccess { resultCode ->
+        signInResult.value.fold(
+            onSuccess = { resultCode ->
                 when (resultCode) {
                     -1L -> {}
                     0L -> navHome()
@@ -74,14 +74,16 @@ fun StartScreen(
                     }
                 }
 
-            }.onFailure {
+            },
+            onFailure = {
                 when (it) {
                     is UnknownHostException -> navNoInternet()
                     else -> {
-                        Toast.makeText(context, "error: $it", Toast.LENGTH_LONG).show()
+                        startViewModel.isError.value = true
                     }
                 }
             }
+        )
         startViewModel.resetResult()
     }
 
@@ -165,7 +167,7 @@ fun StartScreen(
             }
             if (startViewModel.isError.value) {
                 Text(
-                    text = "Get duplicate email",
+                    text = startViewModel.errorText.value,
                     fontFamily = Roboto.regular,
                     fontSize = 14.sp,
                     color = red,
