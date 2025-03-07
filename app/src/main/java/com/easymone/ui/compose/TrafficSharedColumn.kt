@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,10 +29,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.easymone.R
 import com.easymone.ui.compose.modalsheet.CenteredModalDialog
 import com.easymone.ui.screen.home.EarnStatus
-import com.easymone.ui.screen.home.HomeViewModel
 import com.easymone.ui.theme.Roboto
 import com.easymone.ui.theme.background2
 import com.easymone.ui.theme.blueText
@@ -57,10 +52,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun TrafficSharedColumn(
     traffic: String,
-    homeViewModel: HomeViewModel,
-    earnStatus: EarnStatus
-){
-    var startEarn by remember { mutableStateOf(false) }
+    earnStatus: EarnStatus,
+    stopEarn: () -> Unit,
+    startEarn: () -> Unit,
+    loading: Boolean
+) {
+    var startEarnFlag by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     var switchChecked by remember { mutableStateOf(isAppAllowedToRunInBackground(context)) }
@@ -88,7 +85,7 @@ fun TrafficSharedColumn(
             fontSize = 35.sp,
             fontFamily = Roboto.regular,
             color = textColor,
-            modifier = Modifier.shimmerEffect(homeViewModel.loading.value)
+            modifier = Modifier.shimmerEffect(loading)
         )
         Text(
             text = "Traffic shared in total",
@@ -113,7 +110,7 @@ fun TrafficSharedColumn(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Sharing Activate",
+                    text = "Sharing Activated",
                     fontSize = 15.sp,
                     fontFamily = Roboto.regular,
                     color = purple,
@@ -125,13 +122,13 @@ fun TrafficSharedColumn(
         TealButtonSample(
             onClick = {
                 if (earnStatus == EarnStatus.Connected) {
-                    homeViewModel.stopEarn()
+                    stopEarn()
                 } else {
                     if (!isAppAllowedToRunInBackground(context)) {
                         showDialog = true
-                        startEarn = true
+                        startEarnFlag = true
                     } else {
-                        homeViewModel.startEarn()
+                        startEarn()
                     }
                 }
             }
@@ -142,19 +139,13 @@ fun TrafficSharedColumn(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = if (earnStatus == EarnStatus.Connected) {
-                        painterResource(R.drawable.ic_off_wifi)
-                    } else {
-                        painterResource(R.drawable.wifi_line)
-                    },
+                    painter = painterResource(earnStatus.buttonIconId),
                     contentDescription = "start earning real $$$ money",
                     tint = white
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text =
-                    if (earnStatus == EarnStatus.Connected) "Stop Sharing"
-                    else "Start Sharing",
+                    text = earnStatus.buttonText,
                     fontSize = 15.sp,
                     fontFamily = Roboto.regular,
                     color = white
@@ -184,13 +175,7 @@ fun TrafficSharedColumn(
                     modifier = Modifier.scale(0.7f),
                     checked = switchChecked,
                     onCheckedChange = {
-                        if (it) {
-                            showDialog = true
-                        } else {
-                            if (isAppAllowedToRunInBackground(context)) {
-                                switchChecked = true
-                            }
-                        }
+                        if (it) showDialog = true
                     },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = purple,
@@ -221,9 +206,9 @@ fun TrafficSharedColumn(
                     val isAllowed = isAppAllowedToRunInBackground(context)
                     switchChecked = isAllowed
                     if (isAllowed) {
-                        if(startEarn) {
-                            homeViewModel.startEarn()
-                            startEarn = false 
+                        if (startEarnFlag) {
+                            startEarn()
+                            startEarnFlag = false
                         }
                         showDialog = false
                         break

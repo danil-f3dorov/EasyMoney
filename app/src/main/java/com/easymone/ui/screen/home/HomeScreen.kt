@@ -107,8 +107,10 @@ fun HomeScreen(
         Spacer(Modifier.height(18.dp))
         TrafficSharedColumn(
             traffic = clientStats.value.traffic,
-            homeViewModel = homeViewModel,
-            earnStatus = earnStatus.value
+            earnStatus = earnStatus.value,
+            startEarn = homeViewModel::startEarn,
+            stopEarn = homeViewModel::stopEarn,
+            loading = homeViewModel.loading.value
         )
         Spacer(Modifier.height(8.dp))
         BalanceColumn(

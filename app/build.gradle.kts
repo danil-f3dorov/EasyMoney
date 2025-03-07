@@ -14,8 +14,8 @@ android {
         applicationId = "com.easymone"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
         setProperty("archivesBaseName", "easymoney-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

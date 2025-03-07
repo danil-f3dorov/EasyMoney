@@ -76,7 +76,7 @@ fun CenteredModalDialog(
                     ) {
                         Image(
                             painter = painterResource(R.drawable.img_background_mode),
-                            contentDescription = "image allow earning in background mode"
+                            contentDescription = "image allow earning in background mode",
                         )
                         Spacer(Modifier.height(32.dp))
                         Text(

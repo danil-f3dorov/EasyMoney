@@ -1,8 +1,35 @@
 package com.easymone.ui.screen.home
 
+import com.easymone.R
+
 sealed class EarnStatus {
-    data object Connected: EarnStatus()
-    data object Default: EarnStatus()
-    data object EmulatorEnabled : EarnStatus()
-    data object VpnEnabled : EarnStatus()
+    abstract val buttonIconId: Int
+    abstract val buttonText: String
+    data object Connected: EarnStatus() {
+        override val buttonIconId: Int
+            get() = R.drawable.ic_off_wifi
+        override val buttonText: String
+            get() = "Stop Sharing"
+    }
+
+    data object Default: EarnStatus() {
+        override val buttonIconId: Int
+            get() = R.drawable.wifi_line
+        override val buttonText: String
+            get() = "Start Sharing"
+    }
+
+    data object EmulatorEnabled : EarnStatus() {
+        override val buttonIconId: Int
+            get() = TODO("Not yet implemented")
+        override val buttonText: String
+            get() = TODO("Not yet implemented")
+    }
+
+    data object VpnEnabled : EarnStatus() {
+        override val buttonIconId: Int
+            get() = TODO("Not yet implemented")
+        override val buttonText: String
+            get() = TODO("Not yet implemented")
+    }
 }
