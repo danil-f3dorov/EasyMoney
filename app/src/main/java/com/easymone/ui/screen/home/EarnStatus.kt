@@ -18,18 +18,4 @@ sealed class EarnStatus {
         override val buttonText: String
             get() = "Start Sharing"
     }
-
-    data object EmulatorEnabled : EarnStatus() {
-        override val buttonIconId: Int
-            get() = TODO("Not yet implemented")
-        override val buttonText: String
-            get() = TODO("Not yet implemented")
-    }
-
-    data object VpnEnabled : EarnStatus() {
-        override val buttonIconId: Int
-            get() = TODO("Not yet implemented")
-        override val buttonText: String
-            get() = TODO("Not yet implemented")
-    }
 }

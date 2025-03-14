@@ -46,14 +46,16 @@ class HomeViewModel @Inject constructor(
         else EarnStatus.Default
     )
     val earnStatus get() = _earnStatus
+    private var _restrictionType = MutableStateFlow<RestrictionType?>(null)
+    val restrictionType get() = _restrictionType
 
     fun startEarn() {
         if (isEmulator) {
-            _earnStatus.value = EarnStatus.EmulatorEnabled
+            _restrictionType.value = RestrictionType.Emulator
             return
         }
         if (isVpn(App.instance)) {
-            _earnStatus.value = EarnStatus.VpnEnabled
+            _restrictionType.value = RestrictionType.Vpn
             return
         }
 

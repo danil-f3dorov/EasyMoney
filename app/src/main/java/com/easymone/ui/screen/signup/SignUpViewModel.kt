@@ -32,7 +32,6 @@ class SignUpViewModel @Inject constructor(
     val isPlaying get() = _isPlaying
 
 
-
     fun signUp(email: String) {
         viewModelScope.launch {
             try {

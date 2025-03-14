@@ -14,8 +14,8 @@ android {
         applicationId = "com.easymone"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 5
+        versionName = "1.1.3"
         setProperty("archivesBaseName", "easymoney-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,7 +54,6 @@ dependencies {
     implementation(libs.material)
 
     implementation("androidx.compose.material:material-icons-extended")
-
 
     implementation("com.airbnb.android:lottie-compose:6.0.0")
 

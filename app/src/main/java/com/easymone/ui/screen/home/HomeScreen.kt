@@ -43,6 +43,7 @@ fun HomeScreen(
     val clientStats = homeViewModel.clientStats.collectAsState()
     val dailyStats = homeViewModel.dailyStats.collectAsState()
     val earnStatus = homeViewModel.earnStatus.collectAsState()
+    val restrictionType = homeViewModel.restrictionType.collectAsState()
     var isEmulator by remember { mutableStateOf(false) }
     var isVpn by remember { mutableStateOf(false) }
 
@@ -52,12 +53,12 @@ fun HomeScreen(
     LaunchedEffect(
         earnStatus.value
     ) {
-        when (earnStatus.value) {
-            EarnStatus.EmulatorEnabled -> {
+        when (restrictionType.value) {
+            RestrictionType.Emulator -> {
                 isEmulator = true
             }
 
-            EarnStatus.VpnEnabled -> {
+            RestrictionType.Vpn -> {
                 isVpn = true
             }
 
