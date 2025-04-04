@@ -5,6 +5,5 @@ import android.os.PowerManager
 
 fun isAppAllowedToRunInBackground(context: Context): Boolean {
     val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-    val packageName = context.packageName
-    return powerManager.isIgnoringBatteryOptimizations(packageName)
+    return powerManager.isIgnoringBatteryOptimizations(context.packageName)
 }

@@ -188,7 +188,7 @@ fun TrafficSharedColumn(
                     interactionSource = NoRippleInteractionSource,
                 )
                 Text(
-                    text = "Running app in the background",
+                    text = "Run app in the background",
                     fontSize = 14.sp,
                     fontFamily = Roboto.regular,
                     color = blueText

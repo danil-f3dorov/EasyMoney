@@ -14,8 +14,8 @@ android {
         applicationId = "com.easymone"
         minSdk = 24
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.1.3"
+        versionCode = 6
+        versionName = "1.1.4"
         setProperty("archivesBaseName", "easymoney-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -26,6 +26,9 @@ android {
 
     buildTypes {
         release {
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug")
         }

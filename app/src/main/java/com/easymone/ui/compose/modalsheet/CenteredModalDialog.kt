@@ -80,7 +80,7 @@ fun CenteredModalDialog(
                         )
                         Spacer(Modifier.height(32.dp))
                         Text(
-                            text = "Do you want running app\nin the background?",
+                            text = "Do you want run app\nin the background?",
                             fontSize = 16.sp,
                             fontFamily = Roboto.medium,
                             color = textColor,
